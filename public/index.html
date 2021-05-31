@@ -3,34 +3,17 @@
 
 <head>
     <meta charset="UTF-8">
-    <script>
-        function getData(){
-            var url = "https://pokeapi.co/api/v2/pokemon/";
-            var input = document.getElementById("id");
-            var id = input.value;
-            var request = url+String(id);
-            fetch(request)
-            .then(function(data){
-                return data.json();
-            })
-            .then(function(json){
-                var decoded = json;
-                fetch(decoded.forms[0].url)
-                .then(function(decoded_pics){
-                    return decoded_pics.json();
-                })
-                .then(function(decoded_pics_json){
-                    var front_pic = decoded_pics_json.sprites.front_default;
-                    var element = document.getElementById("poke");
-                    element.src = front_pic;
-                })
-                
-            })
-        }
-    </script>
+    <title>ポケモン図鑑</title>
+    <link rel="stylesheet" ref="src/css/style.css">
 </head>
 <body onload="getData();">
-    <input id="id" type="number" placeholder="全国図鑑番号を入れてね" value="1">
-    <button onclick="getData()">ポケモンの画像をかえる</button>
-    <img src="default.png" id="poke">
+    <header>
+
+    </header>
+    <main>
+        <input id="id" type="number" placeholder="全国図鑑番号を入れてね" value="1">
+        <button onclick="getData()">検索</button>
+        <img src="default.png" id="poke" alt="Pokemon">
+    </main>
+    <script type="text/javascript" src="getSprite.js"></script>
 </body>
