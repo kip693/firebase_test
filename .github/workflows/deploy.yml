@@ -28,6 +28,6 @@ jobs:
         env:
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }} # (2)
           SLACK_COLOR: ${{ job.status }} # (3)
-          SLACK_MESSAGE: "Job Result: ${{ job.status }}" # (4)
-          SLACK_TITLE: Job Result
-          SLACK_USERNAME: Job Result Bot
+          SLACK_MESSAGE: "Job Result: ${{ job.status }} Go to https://kiphelloworld.web.app" # (4)
+          SLACK_TITLE: Github Job Result
+          SLACK_USERNAME: F.R.I.D.A.Y.
