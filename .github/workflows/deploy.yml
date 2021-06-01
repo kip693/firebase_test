@@ -21,3 +21,13 @@ jobs:
           args: deploy
         env:
           FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+          # ビルドの実行結果を Slack に投稿する
+      - name: Notificate Slack Channel
+        uses: rtCamp/action-slack-notify@v2
+        if: always() # (1)
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }} # (2)
+          SLACK_COLOR: ${{ job.status }} # (3)
+          SLACK_MESSAGE: "Job Result: ${{ job.status }}" # (4)
+          SLACK_TITLE: Job Result
+          SLACK_USERNAME: Job Result Bot
