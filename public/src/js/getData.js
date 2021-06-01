@@ -1,8 +1,4 @@
-function getSprite(){
-    var url = "https://pokeapi.co/api/v2/pokemon/";
-    var input = document.getElementById("id");
-    var id = input.value;
-    var request = url+String(id);
+function getSprite(request){
     fetch(request)
     .then(function(data){
         return data.json();
@@ -21,10 +17,26 @@ function getSprite(){
         
     })
 }
-function getName(){
-
+function getName(request){
+    fetch(request)
+    .then(function(data){
+        return data.json();
+    })
+    .then(function(json){
+        var decoded = json;
+        console.log(json);
+        var name_en = decoded.species.name;
+        var name_area = document.getElementById("name-en");
+        name_area.innerHTML = name_en;
+    })
 }
 
 function getData(){
-    getSprite()
+    var url = "https://pokeapi.co/api/v2/pokemon/";
+    var input = document.getElementById("id");
+    var id = input.value;
+    var request = url+String(id);
+
+    getSprite(request)
+    getName(request)
 }

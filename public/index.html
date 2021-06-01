@@ -24,14 +24,19 @@
     </header>
 
     <main class="main">
-        <div class="mb-3">
+        <div class="mb-3 search-area">
             <label class="form-label">全国図鑑番号</label>
             <input id="id" type="number" placeholder="全国図鑑番号を入れてね" class="shadow form-control">
+            <div class="mb-3">
+                <button class="btn btn-primary shadow" onclick="getData()">検索</button>
+            </div>
         </div>
-        <div class="mb-3">
-            <button class="btn btn-primary shadow" onclick="getData()">検索</button>
+        <div class="row align-items-start">
+            <div class="result-area">
+                <img src="src/img/favicon_pokeball.ico" id="poke" alt="Pokemon img" class="">
+                <h3 id="name-en" class=" col">Pokemon Name<h3>
+            </div>
         </div>
-        <img src="src/img/favicon_pokeball.ico" id="poke" alt="Pokemon img">
     </main>
 
     <script type="text/javascript" src="src/js/getData.js"></script>
