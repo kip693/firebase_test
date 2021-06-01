@@ -1,4 +1,4 @@
-function getData(){
+function getSprite(){
     var url = "https://pokeapi.co/api/v2/pokemon/";
     var input = document.getElementById("id");
     var id = input.value;
@@ -20,4 +20,11 @@ function getData(){
         })
         
     })
+}
+function getName(){
+
+}
+
+function getData(){
+    getSprite()
 }
