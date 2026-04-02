@@ -1,5 +1,6 @@
 const { App, LogLevel } = require("@slack/bolt");
 const { startScheduledMessages } = require("./scheduled-messages");
+const { handleReflectionReply } = require("./reflection");
 
 const env = process.env.NODE_ENV || "development";
 
@@ -15,6 +16,11 @@ const app = new App({
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN,
   logLevel: isDev ? LogLevel.DEBUG : LogLevel.INFO,
+});
+
+// 振り返りスレッドへの返信を処理
+app.message(async ({ message, say }) => {
+  await handleReflectionReply({ message, say });
 });
 
 // メッセージイベント: "hello" に反応
