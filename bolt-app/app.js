@@ -1,4 +1,5 @@
 const { App, LogLevel } = require("@slack/bolt");
+const { startScheduledMessages } = require("./scheduled-messages");
 
 const env = process.env.NODE_ENV || "development";
 
@@ -35,6 +36,14 @@ app.event("app_mention", async ({ event, say }) => {
 (async () => {
   await app.start();
   console.log(`⚡ Bolt app is running in Socket Mode! [${env}]`);
+
+  // 定期メッセージの開始
+  const channel = process.env.SLACK_CHANNEL_ID;
+  if (channel) {
+    startScheduledMessages(app, channel);
+  } else {
+    console.warn("[scheduler] SLACK_CHANNEL_ID が未設定のためスキップ");
+  }
 
   // Fly.io ヘルスチェック用（本番のみ）
   if (!isDev) {
