@@ -1,13 +1,9 @@
-const { App, LogLevel } = require("@slack/bolt");
-const { startScheduledMessages } = require("./scheduled-messages");
+import "dotenv/config";
+import { App, LogLevel } from "@slack/bolt";
+import { startScheduledMessages } from "./scheduled-messages.js";
+import { handleReflectionReply } from "./reflection.js";
 
 const env = process.env.NODE_ENV || "development";
-
-// 開発時は .env.development、本番は Fly.io の secrets から読み込み
-require("dotenv").config({
-  path: env === "development" ? ".env.development" : ".env",
-});
-
 const isDev = env === "development";
 
 const app = new App({
@@ -15,6 +11,11 @@ const app = new App({
   socketMode: true,
   appToken: process.env.SLACK_APP_TOKEN,
   logLevel: isDev ? LogLevel.DEBUG : LogLevel.INFO,
+});
+
+// 振り返りスレッドへの返信を処理
+app.message(async ({ message, say }) => {
+  await handleReflectionReply({ message, say });
 });
 
 // メッセージイベント: "hello" に反応
@@ -47,7 +48,7 @@ app.event("app_mention", async ({ event, say }) => {
 
   // Fly.io ヘルスチェック用（本番のみ）
   if (!isDev) {
-    const http = require("http");
+    const http = await import("http");
     http
       .createServer((_req, res) => {
         res.writeHead(200);
