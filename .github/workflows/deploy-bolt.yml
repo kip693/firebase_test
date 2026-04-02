@@ -1,0 +1,40 @@
+name: Deploy Bolt App to Fly.io
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "bolt-app/**"
+
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Fly.io
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: bolt-app
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy to Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Notify Slack
+        uses: rtCamp/action-slack-notify@v2
+        if: always()
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_MESSAGE: "Bolt App Deploy: ${{ job.status }}"
+          SLACK_TITLE: Fly.io Deploy Result
+          SLACK_USERNAME: F.R.I.D.A.Y.
