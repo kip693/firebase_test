@@ -1,4 +1,4 @@
-const { summarizeReflection } = require("./gemini");
+import { summarizeReflection } from "./gemini.js";
 
 // Botが投稿した振り返りスレッドの thread_ts を追跡
 const activeThreads = new Set();
@@ -11,7 +11,7 @@ const REFLECTION_PROMPT = `:memo: お疲れ様です！今日の振り返りを�
 • 困ったこと・課題
 • 明日やりたいこと（あれば）`;
 
-async function sendReflectionPrompt(app, channel) {
+export async function sendReflectionPrompt(app, channel) {
   try {
     const result = await app.client.chat.postMessage({
       channel,
@@ -24,11 +24,11 @@ async function sendReflectionPrompt(app, channel) {
   }
 }
 
-function isReflectionThread(threadTs) {
+export function isReflectionThread(threadTs) {
   return activeThreads.has(threadTs);
 }
 
-async function handleReflectionReply({ message, say }) {
+export async function handleReflectionReply({ message, say }) {
   const threadTs = message.thread_ts;
   if (!threadTs || !activeThreads.has(threadTs)) {
     return false;
@@ -56,5 +56,3 @@ async function handleReflectionReply({ message, say }) {
 
   return true;
 }
-
-module.exports = { sendReflectionPrompt, isReflectionThread, handleReflectionReply };

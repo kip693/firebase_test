@@ -1,38 +1,36 @@
-jest.mock("@google/generative-ai", () => {
-  const mockText = jest.fn().mockReturnValue("## 今日の成果\n- テスト完了");
-  const mockGenerateContent = jest.fn().mockResolvedValue({
-    response: { text: mockText },
-  });
-  const mockGetGenerativeModel = jest.fn().mockReturnValue({
-    generateContent: mockGenerateContent,
-  });
-  return {
-    GoogleGenerativeAI: jest.fn().mockImplementation(() => ({
-      getGenerativeModel: mockGetGenerativeModel,
-    })),
-    _mocks: { mockGenerateContent, mockText },
-  };
-});
+import { describe, test, expect, vi, beforeEach } from "vitest";
 
-const { summarizeReflection } = require("./gemini");
-const { _mocks } = require("@google/generative-ai");
+const { mockGenerateContent } = vi.hoisted(() => ({
+  mockGenerateContent: vi.fn(),
+}));
+
+vi.mock("@google/generative-ai", () => ({
+  GoogleGenerativeAI: class {
+    getGenerativeModel() {
+      return { generateContent: mockGenerateContent };
+    }
+  },
+}));
+
+import { summarizeReflection } from "./gemini.js";
 
 beforeEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
+  mockGenerateContent.mockResolvedValue({
+    response: { text: () => "## 今日の成果\n- テスト完了" },
+  });
 });
 
 describe("summarizeReflection", () => {
   test("Gemini APIにユーザーテキストを渡して結果を返す", async () => {
     const result = await summarizeReflection("今日はAPIの実装をした");
 
-    expect(_mocks.mockGenerateContent).toHaveBeenCalledWith(
-      "今日はAPIの実装をした"
-    );
+    expect(mockGenerateContent).toHaveBeenCalledWith("今日はAPIの実装をした");
     expect(result).toBe("## 今日の成果\n- テスト完了");
   });
 
   test("APIエラー時に例外がスローされる", async () => {
-    _mocks.mockGenerateContent.mockRejectedValueOnce(
+    mockGenerateContent.mockRejectedValueOnce(
       new Error("API quota exceeded")
     );
 

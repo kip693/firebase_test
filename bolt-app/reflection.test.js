@@ -1,24 +1,28 @@
-jest.mock("./gemini", () => ({
-  summarizeReflection: jest.fn(),
+import { describe, test, expect, vi, beforeEach, afterEach } from "vitest";
+
+const { mockSummarizeReflection } = vi.hoisted(() => ({
+  mockSummarizeReflection: vi.fn(),
 }));
 
-const { summarizeReflection } = require("./gemini");
-const {
+vi.mock("./gemini.js", () => ({
+  summarizeReflection: mockSummarizeReflection,
+}));
+
+import {
   sendReflectionPrompt,
   isReflectionThread,
   handleReflectionReply,
-} = require("./reflection");
+} from "./reflection.js";
 
-// テスト間で activeThreads をリセットするためモジュールキャッシュをクリア
 afterEach(() => {
-  jest.clearAllMocks();
+  vi.clearAllMocks();
 });
 
 function createMockApp(ts = "1234567890.000100") {
   return {
     client: {
       chat: {
-        postMessage: jest.fn().mockResolvedValue({ ok: true, ts }),
+        postMessage: vi.fn().mockResolvedValue({ ok: true, ts }),
       },
     },
   };
@@ -56,15 +60,14 @@ describe("isReflectionThread", () => {
 describe("handleReflectionReply", () => {
   const threadTs = "2222.0002";
 
-  // 各テストの前に振り返りスレッドを作成
   beforeEach(async () => {
     const app = createMockApp(threadTs);
     await sendReflectionPrompt(app, "C_TEST");
   });
 
   test("振り返りスレッドへの返信を処理し、Geminiの要約を投稿する", async () => {
-    summarizeReflection.mockResolvedValueOnce("## 今日の成果\n- テスト");
-    const say = jest.fn();
+    mockSummarizeReflection.mockResolvedValueOnce("## 今日の成果\n- テスト");
+    const say = vi.fn();
 
     const result = await handleReflectionReply({
       message: { thread_ts: threadTs, text: "今日はテストを書いた", ts: "2222.0003" },
@@ -78,12 +81,11 @@ describe("handleReflectionReply", () => {
       expect.stringContaining("まとめています")
     );
     expect(say).toHaveBeenNthCalledWith(2, "## 今日の成果\n- テスト");
-    // スレッドが消費されたか確認
     expect(isReflectionThread(threadTs)).toBe(false);
   });
 
   test("関係ないスレッドへの返信はfalseを返す", async () => {
-    const say = jest.fn();
+    const say = vi.fn();
 
     const result = await handleReflectionReply({
       message: { thread_ts: "9999.9999", text: "hello", ts: "9999.0001" },
@@ -95,7 +97,7 @@ describe("handleReflectionReply", () => {
   });
 
   test("thread_tsがないメッセージはfalseを返す", async () => {
-    const say = jest.fn();
+    const say = vi.fn();
 
     const result = await handleReflectionReply({
       message: { text: "hello", ts: "3333.0001" },
@@ -107,7 +109,7 @@ describe("handleReflectionReply", () => {
   });
 
   test("Botのメッセージは無視する（trueを返すが処理しない）", async () => {
-    const say = jest.fn();
+    const say = vi.fn();
 
     const result = await handleReflectionReply({
       message: { thread_ts: threadTs, bot_id: "B123", ts: "2222.0004" },
@@ -116,13 +118,12 @@ describe("handleReflectionReply", () => {
 
     expect(result).toBe(true);
     expect(say).not.toHaveBeenCalled();
-    // Botメッセージではスレッドを消費しない
     expect(isReflectionThread(threadTs)).toBe(true);
   });
 
   test("Gemini APIエラー時にエラーメッセージを投稿する", async () => {
-    summarizeReflection.mockRejectedValueOnce(new Error("API error"));
-    const say = jest.fn();
+    mockSummarizeReflection.mockRejectedValueOnce(new Error("API error"));
+    const say = vi.fn();
 
     const result = await handleReflectionReply({
       message: { thread_ts: threadTs, text: "振り返り内容", ts: "2222.0005" },

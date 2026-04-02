@@ -1,12 +1,12 @@
-const cron = require("node-cron");
-const { sendReflectionPrompt } = require("./reflection");
+import cron from "node-cron";
+import { sendReflectionPrompt } from "./reflection.js";
 
 /**
  * 定期メッセージのスケジュール定義
  * cron書式: 秒(任意) 分 時 日 月 曜日
  * タイムゾーン: Asia/Tokyo
  */
-const schedules = [
+export const schedules = [
   {
     name: "朝の挨拶",
     cron: "0 9 * * 1-5", // 平日 9:00
@@ -19,7 +19,7 @@ const schedules = [
   },
 ];
 
-function startScheduledMessages(app, channel) {
+export function startScheduledMessages(app, channel) {
   // 定型メッセージのスケジュール
   for (const schedule of schedules) {
     cron.schedule(
@@ -50,5 +50,3 @@ function startScheduledMessages(app, channel) {
   );
   console.log("[scheduler] Registered: 振り返りプロンプト (0 18 * * 1-5)");
 }
-
-module.exports = { startScheduledMessages, schedules };

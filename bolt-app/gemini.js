@@ -1,4 +1,4 @@
-const { GoogleGenerativeAI } = require("@google/generative-ai");
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -19,9 +19,7 @@ const model = genAI.getGenerativeModel({
 簡潔で実用的にまとめてください。日本語で回答してください。`,
 });
 
-async function summarizeReflection(userText) {
+export async function summarizeReflection(userText) {
   const result = await model.generateContent(userText);
   return result.response.text();
 }
-
-module.exports = { summarizeReflection };
